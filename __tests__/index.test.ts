@@ -31,10 +31,10 @@ describe('streakCounter', () => {
     const date = new Date();
     const streak = streakCounter(mokLocalStorage, date);
 
-    function formattedDate(date: Date): string {
-      // to return date in string format
-      return date.toLocaleDateString('en-US');
-    }
+    // function formattedDate(date: Date): string {
+    //   // to return date in string format
+    //   return date.toLocaleDateString('en-US');
+    // }
 
     const dateFormatted = formattedDate(date);
 
@@ -56,7 +56,7 @@ describe('streakCounter', () => {
 
       mokLocalStorage = mokJSDom.window.localStorage;
 
-      const date = new Date();
+      const date = new Date('2021-12-12');
 
       const streak = {
         currentCount: 1,
@@ -70,49 +70,61 @@ describe('streakCounter', () => {
       mokLocalStorage.clear;
     });
     it('should return the streak from localStorage', () => {
-      const date = new Date('1/22/2023');
+      const date = new Date('2021-12-12');
       const streak = streakCounter(mokLocalStorage, date);
 
-      expect(streak.startDate).toBe('1/22/2023');
+      expect(streak.startDate).toBe('12/12/2021');
     });
     it('should increment the streak', () => {
-      const date = new Date('1/23/2023');
+      const date = new Date('2021-12-13');
       const streak = streakCounter(mokLocalStorage, date);
 
       expect(streak.currentCount).toBe(2);
     });
     it('should not increment the streak when login days not consecutive', () => {
-      const date = new Date('1/22/2023');
+      const date = new Date('2021-12-14');
       const streak = streakCounter(mokLocalStorage, date);
 
       expect(streak.currentCount).toBe(1);
     });
     it('should save the incremented streak to localStorage', () => {
       const key = 'streak';
-      const date = new Date('1/23/2023');
+      const date = new Date('2021-12-13');
       streakCounter(mokLocalStorage, date);
-      const dateUpdated = new Date('1/25/2023');
+
+      const streakAsString = mokLocalStorage.getItem(key);
+      const streak = JSON.parse(streakAsString || '');
+
+      expect(streak.currentCount).toBe(2);
+    });
+    it('should reset if not consecutive', () => {
+      const date = new Date('2021-12-13');
+      const streak = streakCounter(mokLocalStorage, date);
+
+      expect(streak.currentCount).toBe(2);
+
+      const dateUpdated = new Date('2021-12-15');
       const streakUpdated = streakCounter(mokLocalStorage, dateUpdated);
+
+      expect(streakUpdated.currentCount).toBe(1);
+    });
+    it('should save the reset streak to localStorage', () => {
+      const key = 'streak';
+      const date = new Date('2021-12-13');
+      streakCounter(mokLocalStorage, date);
+
+      const _date = new Date('2021-12-15');
+      const _streak = streakCounter(mokLocalStorage, _date);
+
       const streakAsString = mokLocalStorage.getItem(key);
       const streak = JSON.parse(streakAsString || '');
 
       expect(streak.currentCount).toBe(1);
     });
-    it('should reset if not consecutive', () => {
-      const date = new Date('1/23/2023');
-      const streak = streakCounter(mokLocalStorage, date);
-
-      expect(streak.currentCount).toBe(2);
-
-      const dateUpdated = new Date('1/25/2023');
-      const streakUpdated = streakCounter(mokLocalStorage, dateUpdated);
-
-      expect(streakUpdated.currentCount).toBe(1);
-    });
     it('should not reset the streak for same dayt login', () => {
-      const date = new Date('1/23/2023');
+      const date = new Date('2021-12-13');
       streakCounter(mokLocalStorage, date);
-      const dateUpdated = new Date('1/23/2023');
+      const dateUpdated = new Date('2021-12-13');
       const streakUpdated = streakCounter(mokLocalStorage, dateUpdated);
 
       expect(streakUpdated.currentCount).toBe(2);
