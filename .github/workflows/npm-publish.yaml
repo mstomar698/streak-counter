@@ -11,7 +11,7 @@ jobs:
      - run: yarn install
      - run: yarn test
      - run: yarn build
-     - uses: JS-DevTools/npm-publish@v1
+     - uses: npm publish --access public
        with:
          token: $
          access: "public"
